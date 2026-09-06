@@ -1,4 +1,4 @@
-import {drawPaintedArcher,loadPaintedArcher} from './archer-sprites.mjs?v=5';
+import {drawPaintedArcher,loadPaintedArcher} from './archer-sprites.mjs?v=6';
 import {drawArcher,SHOT_DURATION} from './archer.mjs?v=4';
 import {viewport} from './viewport.mjs?v=3';
 import {ARCHER_STRIDE,WORLD_SIZE,CLASSES,CAMP,NPC,FIRE,ROAD,RESOURCE_SEEDS,ENEMY_SEEDS,dist,clamp,seeded,riverY,isWater,roadDistance,getZone} from './model.mjs?v=4';

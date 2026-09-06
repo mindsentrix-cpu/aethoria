@@ -57,6 +57,10 @@ La versión de origen tiene verificaciones de misión completa con las tres clas
 
 Ilustración del menú generada para este proyecto. Iconos Lucide bajo licencia ISC, incluida en `docs/assets/LUCIDE-LICENSE`.
 
-## Arquero pintado: beta
+## Arquero pintado: ocho direcciones (beta)
 
-El Explorador muestra el nuevo arte en el lobby y al mirar hacia la derecha en el mapa, con reposo, seis poses de caminata y cuatro de disparo. Las otras siete direcciones conservan la animación anterior. La escala es fija por atlas y los pies se anclan al suelo; todavía hay diferencias de proporciones entre dibujos. Las imágenes se preparan una vez y la animación anterior sirve de respaldo si no cargan. El combate y el guardado no cambian.
+El Explorador usa sprites pintados en las ocho direcciones del mapa y en el lobby. El ciclo hacia la derecha conserva los mismos fotogramas, escala y tiempos de la beta aprobada. Las otras siete vistas derivan del diseño de referencia y tienen reposo, cuatro poses de caminata y cuatro de disparo. La escala es fija por dirección; las plantas de los pies se alinean al suelo. Los nuevos atlas se distribuyen con transparencia preparada, sin procesamiento de píxeles durante la animación.
+
+La animación original sirve como respaldo únicamente si falla la carga de imágenes. Las reglas del combate, la misión, los controles y el guardado no se modifican en esta actualización. Siguen existiendo variaciones de dibujo entre poses: esta entrega completa las vistas como beta, no como animación final.
+
+Validación de esta entrega: ciclos completos de las ocho direcciones en Canvas, comparación idéntica de píxeles del ciclo derecho con la versión anterior, pruebas existentes del arquero y misión completa de las tres clases con navegación por las colisiones reales. Las comprobaciones de Canvas siguen siendo locales; todavía falta incorporarlas al repositorio con sus dependencias y CI.

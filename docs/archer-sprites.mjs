@@ -1,14 +1,16 @@
+import {DIRECTION_ATLASES} from './archer-direction-data-v6.mjs';
 import {RELEASE,SHOT_DURATION} from './archer.mjs?v=4';
 
-// Beta artwork has one authored direction. Keep the existing rig for the rest.
+// The approved east animation stays intact; other views use authored directional atlases.
 let frames=null,loading=null;
+const directionalFrames={};
 const clamp=n=>Math.max(0,Math.min(1,n));
-export function paintedPose({shot=-1,moving=false,phase=0}={}){
+export function paintedPose({shot=-1,moving=false,phase=0,direction=2}={}){
   if(shot>=0&&shot<SHOT_DURATION){
     const t=shot/SHOT_DURATION;
     return {group:'shoot',index:t<.2?0:t<.38?1:t<RELEASE?2:t<.9?3:0};
   }
-  if(moving)return {group:'walk',index:Math.floor(((phase%1+1)%1)*6)};
+  if(moving)return {group:'walk',index:Math.floor(((phase%1+1)%1)*(direction===2?6:4))};
   return {group:'idle',index:0};
 }
 function extract(im,rect,anchor,scale){
@@ -35,7 +37,7 @@ export function loadPaintedArcher(){
     const im=new Image();im.onload=()=>resolve(im);im.onerror=reject;
     im.src=new URL('./assets/'+name,import.meta.url).href;
   });
-  loading=Promise.all([load('archer-poses-beta.webp'),load('archer-walk-beta.webp')]).then(([a,b])=>{
+  const east=Promise.all([load('archer-poses-beta.webp'),load('archer-walk-beta.webp')]).then(([a,b])=>{
     const cols=[0,314,628,942,1254];
     // Fixed scale within each atlas: crouching must not stretch the body.
     frames={
@@ -45,11 +47,26 @@ export function loadPaintedArcher(){
     };
     return true;
   }).catch(error=>{console.warn('Archer artwork unavailable; using original animation.',error);return false;});
+  const others=Object.entries(DIRECTION_ATLASES).map(async ([direction,atlas])=>{
+    try{
+      const im=await load(atlas.file),cell=atlas.cell;
+      if(im.width!==cell*3||im.height!==cell*3)throw new Error('Invalid atlas dimensions');
+      const poses=atlas.frames.map((f,i)=>{
+        const canvas=document.createElement('canvas');canvas.width=cell;canvas.height=cell;
+        canvas.getContext('2d').drawImage(im,(i%3)*cell,Math.floor(i/3)*cell,cell,cell,0,0,cell,cell);
+        return {canvas,anchor:f.anchor,bottom:f.bottom,scale:atlas.scale};
+      });
+      directionalFrames[direction]={idle:[poses[0]],walk:poses.slice(1,5),shoot:poses.slice(5,9)};
+      return true;
+    }catch(error){console.warn('Directional archer artwork unavailable: '+direction,error);return false;}
+  });
+  loading=Promise.all([east,...others]).then(results=>results.every(Boolean));
   return loading;
 }
 export function drawPaintedArcher(ctx,x,y,state={}){
-  if(!frames||state.direction!==2)return false;
-  const pose=paintedPose(state),f=frames[pose.group][pose.index],scale=f.scale*(state.scale||1);
+  const bank=state.direction===2?frames:directionalFrames[state.direction];
+  if(!bank)return false;
+  const pose=paintedPose(state),f=bank[pose.group][pose.index],scale=f.scale*(state.scale||1);
   ctx.save();
   ctx.fillStyle='#0a191c44';ctx.beginPath();ctx.ellipse(x,y+1,19*(state.scale||1),6*(state.scale||1),0,0,Math.PI*2);ctx.fill();
   ctx.imageSmoothingEnabled=true;
