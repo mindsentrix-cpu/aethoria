@@ -1,4 +1,4 @@
-import {DIRECTION_ATLASES} from './archer-direction-data-v6.mjs';
+import {DIRECTION_ATLASES} from './archer-direction-data-v7.mjs';
 import {RELEASE,SHOT_DURATION} from './archer.mjs?v=4';
 
 // The approved east animation stays intact; other views use authored directional atlases.
@@ -53,7 +53,10 @@ export function loadPaintedArcher(){
       if(im.width!==cell*3||im.height!==cell*3)throw new Error('Invalid atlas dimensions');
       const poses=atlas.frames.map((f,i)=>{
         const canvas=document.createElement('canvas');canvas.width=cell;canvas.height=cell;
-        canvas.getContext('2d').drawImage(im,(i%3)*cell,Math.floor(i/3)*cell,cell,cell,0,0,cell,cell);
+        const ctx=canvas.getContext('2d');
+        ctx.drawImage(im,(i%3)*cell,Math.floor(i/3)*cell,cell,cell,0,0,cell,cell);
+        // Exclude atlas bleed below the actual planted foot.
+        if(f.clipBottom!==undefined)ctx.clearRect(0,f.clipBottom,cell,cell-f.clipBottom);
         return {canvas,anchor:f.anchor,bottom:f.bottom,scale:atlas.scale};
       });
       directionalFrames[direction]={idle:[poses[0]],walk:poses.slice(1,5),shoot:poses.slice(5,9)};
