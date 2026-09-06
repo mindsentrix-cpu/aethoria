@@ -1,6 +1,8 @@
+import {drawPaintedArcher,loadPaintedArcher} from './archer-sprites.mjs?v=5';
 import {drawArcher,SHOT_DURATION} from './archer.mjs?v=4';
 import {viewport} from './viewport.mjs?v=3';
 import {ARCHER_STRIDE,WORLD_SIZE,CLASSES,CAMP,NPC,FIRE,ROAD,RESOURCE_SEEDS,ENEMY_SEEDS,dist,clamp,seeded,riverY,isWater,roadDistance,getZone} from './model.mjs?v=4';
+void loadPaintedArcher();
 export const project=(x,y,z=0)=>({x:(x-y)*.86,y:(x+y)*.48-z});
 export const unproject=(x,y)=>({x:(x/.86+y/.48)/2,y:(y/.48-x/.86)/2});
 function polygon(ctx,points,fill,stroke){ctx.beginPath();points.forEach((p,i)=>i?ctx.lineTo(p[0],p[1]):ctx.moveTo(p[0],p[1]));ctx.closePath();if(fill){ctx.fillStyle=fill;ctx.fill();}if(stroke){ctx.strokeStyle=stroke;ctx.stroke();}}
@@ -20,7 +22,8 @@ export function drawHero(ctx,x,y,classId='guardian',time=0,opts={}){
     ctx.save();
     if(opts.ring){ellipse(ctx,x,y+1,25,11,'#d9c38c25');}
     if(opts.flash)ctx.globalAlpha=.65;
-    drawArcher(ctx,x,y,{scale:opts.scale||1,time,direction:opts.direction??1,phase:opts.phase??0,moving:!!opts.moving,motion:opts.motion??(opts.moving?1:0),shot:opts.shot??-1,stride:ARCHER_STRIDE});
+    const state={scale:opts.scale||1,time,direction:opts.direction??1,phase:opts.phase??0,moving:!!opts.moving,motion:opts.motion??(opts.moving?1:0),shot:opts.shot??-1,stride:ARCHER_STRIDE};
+    if(!drawPaintedArcher(ctx,x,y,state))drawArcher(ctx,x,y,state);
     ctx.restore();return;
   }
   const c=CLASSES[classId]||CLASSES.guardian,scale=opts.scale||1,step=opts.moving?Math.sin(time)*4:Math.sin(time*.65)*.45,face=opts.face??1;
@@ -129,4 +132,4 @@ export class Renderer{
 }
 
 export function renderHeroPreview(canvas,classId,time){const w=canvas.clientWidth,h=canvas.clientHeight;if(!w||!h)return;const dpr=Math.min(devicePixelRatio||1,2);if(canvas.width!==Math.round(w*dpr)||canvas.height!==Math.round(h*dpr)){canvas.width=Math.round(w*dpr);canvas.height=Math.round(h*dpr);}const ctx=canvas.getContext('2d');ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,w,h);const scale=Math.min(w/110,(h-70)/120,4.2),x=w/2,y=h*.68;
-  const glow=ctx.createRadialGradient(x,y-110,0,x,y-105,w*.65);glow.addColorStop(0,CLASSES[classId].color+'27');glow.addColorStop(1,CLASSES[classId].color+'00');ctx.fillStyle=glow;ctx.fillRect(0,0,w,h);ctx.save();ctx.translate(x,y+8);const rr=Math.min(w*.41,112);ellipse(ctx,0,6,rr,rr*.38,'#152b22b3');ctx.lineWidth=1;ctx.strokeStyle='#b5a36855';ctx.beginPath();ctx.ellipse(0,0,rr,rr*.38,0,0,Math.PI*2);ctx.stroke();ctx.beginPath();ctx.ellipse(0,0,rr*.85,rr*.33,0,0,Math.PI*2);ctx.strokeStyle='#b5a3682b';ctx.stroke();for(let i=0;i<10;i++){const a=i/10*Math.PI*2;line(ctx,Math.cos(a)*rr*.88,Math.sin(a)*rr*.34,Math.cos(a)*rr,Math.sin(a)*rr*.38,'#c9b47b66');}ctx.restore();drawHero(ctx,x,y,classId,time,{scale,face:1});for(let i=0;i<6;i++){const xx=x+Math.sin(i*12+time*.15)*w*.27,yy=y-((time*13+i*41)%(h*.6));ellipse(ctx,xx,yy,1.3,1.3,'#d9c88a66');}}
+  const glow=ctx.createRadialGradient(x,y-110,0,x,y-105,w*.65);glow.addColorStop(0,CLASSES[classId].color+'27');glow.addColorStop(1,CLASSES[classId].color+'00');ctx.fillStyle=glow;ctx.fillRect(0,0,w,h);ctx.save();ctx.translate(x,y+8);const rr=Math.min(w*.41,112);ellipse(ctx,0,6,rr,rr*.38,'#152b22b3');ctx.lineWidth=1;ctx.strokeStyle='#b5a36855';ctx.beginPath();ctx.ellipse(0,0,rr,rr*.38,0,0,Math.PI*2);ctx.stroke();ctx.beginPath();ctx.ellipse(0,0,rr*.85,rr*.33,0,0,Math.PI*2);ctx.strokeStyle='#b5a3682b';ctx.stroke();for(let i=0;i<10;i++){const a=i/10*Math.PI*2;line(ctx,Math.cos(a)*rr*.88,Math.sin(a)*rr*.34,Math.cos(a)*rr,Math.sin(a)*rr*.38,'#c9b47b66');}ctx.restore();drawHero(ctx,x,y,classId,time,{scale,face:1,direction:2});for(let i=0;i<6;i++){const xx=x+Math.sin(i*12+time*.15)*w*.27,yy=y-((time*13+i*41)%(h*.6));ellipse(ctx,xx,yy,1.3,1.3,'#d9c88a66');}}

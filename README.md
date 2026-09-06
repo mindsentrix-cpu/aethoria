@@ -56,3 +56,7 @@ Abre `http://localhost:8080/` en el navegador. Las rutas relativas permiten serv
 La versión de origen tiene verificaciones de misión completa con las tres clases, combate, guardado y geometría móvil. La adaptación a Pages comprueba las rutas y recursos locales. No se ha probado esta publicación en un teléfono físico.
 
 Ilustración del menú generada para este proyecto. Iconos Lucide bajo licencia ISC, incluida en `docs/assets/LUCIDE-LICENSE`.
+
+## Arquero pintado: beta
+
+El Explorador muestra el nuevo arte en el lobby y al mirar hacia la derecha en el mapa, con reposo, seis poses de caminata y cuatro de disparo. Las otras siete direcciones conservan la animación anterior. La escala es fija por atlas y los pies se anclan al suelo; todavía hay diferencias de proporciones entre dibujos. Las imágenes se preparan una vez y la animación anterior sirve de respaldo si no cargan. El combate y el guardado no cambian.
