@@ -1,0 +1,15 @@
+{
+  "name": "Aethoria · El Valle de las Cenizas",
+  "short_name": "Aethoria",
+  "start_url": "./",
+  "display": "standalone",
+  "orientation": "landscape",
+  "background_color": "#0c1717",
+  "theme_color": "#0c1717",
+  "lang": "es",
+  "display_override": [
+    "fullscreen",
+    "standalone"
+  ],
+  "scope": "./"
+}

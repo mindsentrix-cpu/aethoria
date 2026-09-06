@@ -1,2 +1,48 @@
-# aethoria
-RPG movil Aethoria
+# Aethoria · El Valle de las Cenizas
+
+RPG de fantasía individual para móviles y escritorio. Incluye menú principal, lobby con tres clases y un mapa isométrico jugable. Mundo, personajes, historia y arte originales.
+
+## Publicar en GitHub Pages
+
+El juego completo está en `docs/` y no necesita instalación ni compilación.
+
+1. Abre [Settings → Pages](https://github.com/mindsentrix-cpu/aethoria/settings/pages).
+2. En **Build and deployment**, selecciona **Deploy from a branch**.
+3. Elige la rama **main**, la carpeta **/docs** y pulsa **Save**.
+4. Espera a que GitHub indique que la publicación terminó.
+
+Una vez activado, la dirección prevista del juego es **https://mindsentrix-cpu.github.io/aethoria/**. La subida de archivos por sí sola no activa esa dirección.
+
+GitHub Free permite Pages en repositorios públicos. Para publicar desde este repositorio privado hace falta un plan compatible, como GitHub Pro. El sitio de Pages será público salvo que se configure una opción de acceso empresarial compatible.
+
+## Jugar en móvil
+
+Abre el enlace publicado directamente en Safari o Chrome. En iPhone puedes usar **Compartir → Añadir a pantalla de inicio** para abrirlo como una aplicación. Los controles del visor de ChatGPT pertenecen a ese visor y pueden seguir apareciendo si abres el juego dentro de él.
+
+La interfaz se dispone en horizontal desde la apertura y mantiene los controles en los bordes. Al entrar intenta pantalla completa y bloqueo de orientación cuando el navegador lo permite; en los demás casos usa rotación visual y adapta las coordenadas táctiles. La página limita el desplazamiento del documento, conservando el desplazamiento interno de los paneles que lo necesitan.
+
+El progreso se guarda en el navegador y dispositivo utilizados. La partida del alojamiento anterior no se transfiere automáticamente al nuevo dominio. Es un prototipo individual, sin servidor multijugador.
+
+## Contenido y controles
+
+- Guardián, Arcanista y Explorador, con estadísticas, alcance y habilidad propia.
+- Joystick táctil; WASD, flechas o clic para caminar en escritorio.
+- Ataque, habilidad, esquiva, pociones y recolección.
+- Misión de Lyra, recursos, enemigos, cofres y jefe final.
+- Experiencia, niveles, mochila, diario, minimapa y guardado automático.
+
+## Desarrollo
+
+Sirve `docs/` con un servidor estático, por ejemplo:
+
+```sh
+python -m http.server 8080 --directory docs
+```
+
+Abre `http://localhost:8080/` en el navegador. Las rutas relativas permiten servir el juego tanto en la raíz como bajo `/aethoria/`.
+
+`index.html` define la interfaz; `style.css` y `mobile.css`, su presentación; `viewport.mjs`, la orientación y coordenadas; `model.mjs`, las reglas del juego; `renderer.mjs`, el mundo en Canvas 2D; `ui.mjs`, interacción y audio.
+
+La versión de origen tiene verificaciones de misión completa con las tres clases, combate, guardado y geometría móvil. La adaptación a Pages comprueba las rutas y recursos locales. No se ha probado esta publicación en un teléfono físico.
+
+Ilustración del menú generada para este proyecto. Iconos Lucide bajo licencia ISC, incluida en `docs/assets/LUCIDE-LICENSE`.

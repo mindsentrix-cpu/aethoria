@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#0d1919">
+  <meta name="description" content="Explora Aethoria: un RPG de fantasía con tres clases, combate, recolección y un valle lleno de secretos. Juega con controles táctiles o teclado.">
+  <title>Aethoria · El Valle de las Cenizas</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230d1919'/%3E%3Ctext x='32' y='47' text-anchor='middle' font-size='48' font-family='Georgia' fill='%23d4b97d'%3EA%3C/text%3E%3C/svg%3E">
+  <link rel="stylesheet" href="./style.css">
+  <link rel="stylesheet" href="./mobile.css?v=3">
+  <link rel="manifest" href="./manifest.webmanifest">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Aethoria">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+</head>
+<body>
+  <div id="viewport-frame">
+  <main id="app">
+    <section id="menu" class="screen menu-screen" aria-label="Menú principal">
+      <div class="world-backdrop"></div><div class="menu-shade"></div><div class="dust" aria-hidden="true"></div>
+      <header class="screen-header"><a class="wordmark" href="#" aria-label="Aethoria, inicio"><span class="brand-rune">A</span><span>AETHORIA</span></a><span class="edition">AVENTURA INDIVIDUAL <span class="small-separator">/</span> VOL. I</span><button class="icon-btn settings-open" aria-label="Abrir ajustes"><i data-icon="settings"></i></button></header>
+      <div class="menu-content">
+        <div class="eyebrow"><span class="short-line"></span> UN NUEVO COMIENZO</div>
+        <h1>AETHORIA</h1>
+        <div class="title-subtitle"><span></span> EL VALLE DE LAS CENIZAS <span></span></div>
+        <p class="menu-intro">El viejo mundo aún guarda secretos.<br>Tu historia empieza al otro lado del bosque.</p>
+        <div class="menu-actions">
+          <button id="enter-btn" class="button primary"><i data-icon="swords"></i><span>Entrar al reino</span><i data-icon="arrow-right" class="end-icon"></i></button>
+          <button id="continue-btn" class="button secondary" hidden><i data-icon="compass"></i><span>Continuar aventura</span></button>
+          <button class="text-button help-open"><i data-icon="book-open"></i> Cómo jugar</button>
+        </div>
+      </div>
+      <div class="world-note"><span class="note-rule"></span><div class="eyebrow">TU PRIMER DESTINO</div><h2>Valle de las Cenizas</h2><p>Bosques antiguos. Ruinas olvidadas.<br>Algo ha despertado entre los árboles.</p><div class="location"><i data-icon="map-pin"></i> FRONTERA DEL NORTE</div></div>
+      <footer class="menu-footer"><span>EXPLORA <b>·</b> COMBATE <b>·</b> PROGRESA</span><span class="footer-right"><span>ESPAÑOL</span><span class="small-separator">/</span><span>ALFA 0.1</span><button class="icon-btn audio-toggle" aria-label="Activar sonido"><i data-icon="volume-x"></i></button></span></footer>
+    </section>
+
+    <section id="lobby" class="screen lobby-screen" hidden aria-label="Lobby, el refugio">
+      <div class="world-backdrop"></div><div class="lobby-shade"></div>
+      <header class="screen-header"><button id="lobby-back" class="back-button"><i data-icon="arrow-left"></i> Menú principal</button><div class="lobby-heading">EL REFUGIO <span>PREPARA TU AVENTURA</span></div><button class="icon-btn settings-open" aria-label="Abrir ajustes"><i data-icon="settings"></i></button></header>
+      <div class="lobby-layout">
+        <div class="class-panel"><div class="eyebrow">01 <span class="short-line"></span> TU VOCACIÓN</div><h2>Elige tu camino.</h2><p class="muted">Tres formas de dejar tu huella.</p>
+          <div class="class-options" role="group" aria-label="Clase de personaje">
+            <button class="class-card selected" data-class="guardian" aria-pressed="true"><span class="class-icon"><i data-icon="shield"></i></span><span><strong>Guardián</strong><small>Espada y escudo</small></span><span class="selection-mark">◆</span></button>
+            <button class="class-card" data-class="arcanist" aria-pressed="false"><span class="class-icon"><i data-icon="sparkles"></i></span><span><strong>Arcanista</strong><small>Magia de las cenizas</small></span><span class="selection-mark">◆</span></button>
+            <button class="class-card" data-class="ranger" aria-pressed="false"><span class="class-icon"><i data-icon="bow-arrow"></i></span><span><strong>Explorador</strong><small>Arco y precisión</small></span><span class="selection-mark">◆</span></button>
+          </div>
+          <div class="class-detail"><div class="eyebrow" id="class-role">RESISTENCIA · CUERPO A CUERPO</div><p id="class-description">La primera línea frente a la oscuridad. Resiste los golpes y rompe las defensas con un poderoso torbellino.</p><div class="stat-row"><span>Vitalidad</span><span class="stat-segments" id="vitality-stat"></span></div><div class="stat-row"><span>Daño</span><span class="stat-segments" id="damage-stat"></span></div><div class="stat-row"><span>Alcance</span><span class="stat-segments" id="range-stat"></span></div></div>
+        </div>
+        <div class="character-showcase"><canvas id="hero-preview" aria-label="Vista del personaje elegido"></canvas><div class="hero-nameplate"><span class="eyebrow">NIVEL 1 · AVENTURERO</span><h3 id="hero-class-name">Guardián</h3><div class="equipment-label" id="hero-equipment">Hoja del alba · Escudo de hierro</div></div></div>
+        <div class="journey-panel"><div class="eyebrow">02 <span class="short-line"></span> TU DESTINO</div><div class="destination-card"><div class="destination-image"><span class="region-tag"><i data-icon="map"></i> MUNDO ABIERTO</span></div><div class="destination-body"><span class="eyebrow">LA PRIMERA EXPEDICIÓN</span><h3>Valle de las Cenizas</h3><p>La guardiana del refugio necesita ayuda. Encuéntrala junto a la hoguera.</p><div class="destination-facts"><span><i data-icon="trees"></i> 1 región</span><span><i data-icon="skull"></i> 1 jefe</span><span><i data-icon="clock3"></i> 5–10 min</span></div></div></div><label for="hero-name">NOMBRE DE TU PERSONAJE</label><input id="hero-name" maxlength="18" value="Viajero" autocomplete="off" spellcheck="false"><button id="start-btn" class="button primary"><span>Comenzar aventura</span><i data-icon="arrow-right"></i></button><div class="save-note"><i data-icon="hard-drive"></i> Progreso guardado en este dispositivo</div></div>
+      </div>
+    </section>
+
+    <section id="game" class="screen game-screen" hidden aria-label="Mapa jugable">
+      <canvas id="world" aria-label="Valle de las Cenizas. Usa WASD o el joystick para moverte."></canvas><div class="game-vignette"></div>
+      <div class="player-hud"><div class="player-emblem"><i id="player-class-icon" data-icon="shield"></i><span id="level-badge">1</span></div><div class="player-vitals"><div class="player-meta"><strong id="hud-name">Viajero</strong><span id="hud-level">Guardián</span></div><div class="health-track"><div id="health-fill"></div><span id="health-text">140 / 140</span></div><div class="mana-track"><div id="mana-fill"></div></div></div></div>
+      <div class="zone-heading"><span id="zone-name">Refugio del Alba</span><small id="zone-status">ZONA SEGURA</small></div>
+      <div class="map-hud"><div class="map-frame"><canvas id="minimap" width="180" height="180" aria-label="Minimapa. El punto dorado eres tú."></canvas><span class="north-label">N</span></div><div class="map-buttons"><button id="map-btn" class="icon-btn" aria-label="Abrir mapa"><i data-icon="map"></i></button><button id="pause-btn" class="icon-btn" aria-label="Pausar"><i data-icon="pause"></i></button></div></div>
+      <div class="quest-tracker"><button id="quest-toggle" aria-expanded="true"><i data-icon="scroll-text"></i><span>El corazón del valle</span><i data-icon="chevron-down"></i></button><div id="quest-objectives"><p>Habla con Lyra en el refugio.</p></div></div>
+      <div id="target-hud" class="target-hud" hidden><div><span id="target-name"></span><span id="target-level"></span></div><div class="target-health"><span id="target-fill"></span></div></div>
+      <div id="toast-container" aria-live="polite"></div><div id="zone-banner" aria-live="polite"></div>
+      <div id="interact-wrap" class="interact-wrap" hidden><button id="interact-btn"><span class="key-hint">E</span><i data-icon="hand"></i><span id="interact-label">Hablar con Lyra</span></button></div>
+      <div id="joystick" class="joystick" aria-label="Joystick de movimiento" role="application"><div class="joystick-ring"></div><div class="joystick-knob" id="joystick-knob"><i data-icon="move"></i></div></div>
+      <div class="desktop-move"><span>W A S D</span> Mover <b>·</b> Clic para caminar</div>
+      <div class="utility-bar"><button id="inventory-btn" aria-label="Abrir mochila"><i data-icon="backpack"></i><span>Mochila</span><kbd>I</kbd></button><button id="journal-btn" aria-label="Abrir diario"><i data-icon="book-open"></i><span>Diario</span><kbd>J</kbd></button><button id="potion-btn" aria-label="Beber poción"><i data-icon="flask-conical"></i><span id="potion-count">3</span><kbd>R</kbd></button></div>
+      <div class="combat-controls"><button id="dodge-btn" class="combat-button dodge" aria-label="Esquivar"><i data-icon="wind"></i><span>Esquivar</span><kbd>ESPACIO</kbd><div class="cooldown-cover" id="dodge-cooldown"></div></button><button id="skill-btn" class="combat-button skill" aria-label="Habilidad especial"><i id="skill-icon" data-icon="sparkles"></i><span id="skill-label">Torbellino</span><kbd>Q</kbd><div class="cooldown-cover" id="skill-cooldown"></div></button><button id="attack-btn" class="combat-button attack" aria-label="Atacar al enemigo cercano"><i data-icon="swords"></i><span>Atacar</span><kbd>F</kbd><div class="cooldown-cover" id="attack-cooldown"></div></button></div>
+      <div class="xp-track"><div id="xp-fill"></div><span id="xp-text">NIVEL 1</span></div>
+    </section>
+  </main>
+  </div>
+
+  <dialog id="panel-dialog"><div class="dialog-top"><div><span class="eyebrow" id="dialog-eyebrow">AETHORIA</span><h2 id="dialog-title"></h2></div><button id="close-dialog" class="icon-btn" aria-label="Cerrar ventana"><i data-icon="x"></i></button></div><div id="dialog-body"></div></dialog>
+  <div id="fatal-error" hidden role="alert"><h2>El valle no pudo abrirse</h2><p>Vuelve a cargar la página para intentarlo otra vez.</p><button onclick="location.reload()">Volver a intentar</button></div>
+  <script type="module" src="./ui.mjs?v=3"></script>
+</body>
+</html>
