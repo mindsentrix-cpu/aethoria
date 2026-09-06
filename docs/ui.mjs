@@ -1,6 +1,6 @@
 import {viewport,installViewport,installScrollGuard,requestLandscape,localPoint,localVector} from './viewport.mjs?v=3';
-import {CLASSES,GameModel,createProfile,validateProfile,CAMP,dist,getZone,clamp} from './model.mjs';
-import {Renderer,renderHeroPreview,unproject} from './renderer.mjs?v=3';
+import {CLASSES,GameModel,createProfile,validateProfile,CAMP,dist,getZone,clamp} from './model.mjs?v=4';
+import {Renderer,renderHeroPreview,unproject} from './renderer.mjs?v=4';
 import {icon,applyIcons} from './icons.mjs';
 
 const $=id=>document.getElementById(id),SAVE_KEY='aethoria-adventure-v1',PREF_KEY='aethoria-preferences-v1';

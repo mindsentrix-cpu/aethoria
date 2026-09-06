@@ -1,3 +1,5 @@
+import {RELEASE,SHOT_DURATION,facingAngle} from './archer.mjs?v=4';
+export const ARCHER_STRIDE=68;
 export const WORLD_SIZE=1600;
 export const CLASSES={
   guardian:{name:'Guardián',icon:'shield',hp:150,damage:24,range:87,speed:135,cooldown:.62,skill:'Torbellino',skillCost:25,skillCooldown:7,role:'RESISTENCIA · CUERPO A CUERPO',description:'La primera línea frente a la oscuridad. Resiste los golpes y rompe las defensas con un poderoso torbellino.',equipment:'Hoja del alba · Escudo de hierro',color:'#c6a65f',stats:[5,3,1]},
@@ -44,7 +46,7 @@ export function validateProfile(raw){
 export class GameModel{
   constructor(profile,onEvent=()=>{}){
     this.p=profile;this.onEvent=onEvent;this.enemies=ENEMY_SEEDS.map(e=>({...e,...ENEMY_DATA[e.type],homeX:e.x,homeY:e.y,maxHp:ENEMY_DATA[e.type].hp,hp:profile.enemies[e.id]?0:ENEMY_DATA[e.type].hp,cd:1,windup:0,attackX:0,attackY:0,flash:0,walk:0,angle:0,engaged:false}));
-    this.resources=RESOURCE_SEEDS.map(r=>({...r,used:!!profile.resources[r.id]}));this.effects=[];this.texts=[];this.input={x:0,y:0};this.destination=null;this.moveVector={x:0,y:1};this.angle=.45;this.walk=0;this.moving=false;this.attackCd=0;this.skillCd=0;this.dodgeCd=0;this.dodgeTime=0;this.attackAnim=0;this.hurtFlash=0;this.gather=null;this.lastCombat=-999;this.dead=false;this.active=true;this.zone=getZone(profile)[0];this.target=null;this.autoAttack=false;this.lastSave=0;this.interactable=null;
+    this.resources=RESOURCE_SEEDS.map(r=>({...r,used:!!profile.resources[r.id]}));this.effects=[];this.texts=[];this.input={x:0,y:0};this.destination=null;this.moveVector={x:0,y:1};this.angle=.45;this.walk=0;this.moving=false;this.archerPhase=0;this.archerMotion=0;this.archerDirection=0;this.archerShot=null;this.attackCd=0;this.skillCd=0;this.dodgeCd=0;this.dodgeTime=0;this.attackAnim=0;this.hurtFlash=0;this.gather=null;this.lastCombat=-999;this.dead=false;this.active=true;this.zone=getZone(profile)[0];this.target=null;this.autoAttack=false;this.lastSave=0;this.interactable=null;
   }
   emit(type,data={}){this.onEvent(type,data);}
   get maxHp(){return CLASSES[this.p.classId].hp+(this.p.level-1)*20;}
@@ -65,10 +67,42 @@ export class GameModel{
     let vx=this.input.x,vy=this.input.y;
     if(Math.hypot(vx,vy)>.05)this.destination=null;
     else if(this.destination){const dx=this.destination.x-this.p.x,dy=this.destination.y-this.p.y,d=Math.hypot(dx,dy);if(d<9)this.destination=null;else{vx=dx/d;vy=dy/d;}}
+    if(this.p.classId==='ranger'&&this.archerShot){vx=0;vy=0;}
     const m=Math.hypot(vx,vy);this.moving=m>.05||this.dodgeTime>0;
-    if(this.moving){if(this.gather)this.gather=null;let speed=this.config.speed;if(this.dodgeTime>0){speed*=3.5;vx=this.moveVector.x;vy=this.moveVector.y;}else{const n=Math.max(1,m);vx/=n;vy/=n;this.moveVector={x:vx,y:vy};}this.angle=Math.atan2(vy,vx);const px=this.p.x,py=this.p.y;this.moveEntity(this.p,vx*speed*dt,vy*speed*dt);if(this.destination&&Math.hypot(this.p.x-px,this.p.y-py)<dt*5)this.destination=null;this.walk+=dt*11;}
+    if(this.moving){
+      if(this.gather)this.gather=null;
+      let speed=this.config.speed;
+      const ranger=this.p.classId==='ranger';
+      if(this.dodgeTime>0){speed*=3.5;vx=this.moveVector.x;vy=this.moveVector.y;}
+      else{
+        const n=Math.max(1,m);vx/=n;vy/=n;
+        if(ranger){
+          const dir=(Math.round(Math.atan2((vx-vy)*.86,(vx+vy)*.48)/(Math.PI/4))+8)%8;
+          const sx=Math.sin(dir*Math.PI/4),sy=Math.cos(dir*Math.PI/4);
+          const ax=(sx/.86+sy/.48)/2,ay=(sy/.48-sx/.86)/2,l=Math.hypot(ax,ay);
+          vx=ax/l*Math.min(m,1);vy=ay/l*Math.min(m,1);
+        }
+        this.moveVector={x:vx,y:vy};
+      }
+      this.angle=Math.atan2(vy,vx);
+      const px=this.p.x,py=this.p.y,dx=vx*speed*dt,dy=vy*speed*dt;
+      if(ranger){if(this.validPosition(px+dx,py+dy)){this.p.x+=dx;this.p.y+=dy;}}
+      else this.moveEntity(this.p,dx,dy);
+      const movedX=this.p.x-px,movedY=this.p.y-py,travel=Math.hypot(movedX,movedY);
+      if(this.destination&&travel<dt*5)this.destination=null;
+      if(ranger){
+        this.moving=travel>1e-6;
+        if(this.moving){
+          this.archerDirection=(Math.round(Math.atan2((movedX-movedY)*.86,(movedX+movedY)*.48)/(Math.PI/4))+8)%8;
+          if(this.dodgeTime<=0)this.archerPhase=(this.archerPhase+Math.hypot((movedX-movedY)*.86,movedX+movedY)/ARCHER_STRIDE)%1;
+        }
+      }
+      this.walk+=dt*11;
+    }
+    if(this.p.classId==='ranger')this.archerMotion=this.moving&&this.dodgeTime<=0?1:Math.max(0,this.archerMotion-dt/.13);
     if(this.gather){this.gather.time+=dt;if(this.gather.time>=this.gather.duration)this.finishGather();}
     for(const e of this.enemies)this.updateEnemy(e,dt);
+    this.updateArcher(dt);
     if(this.autoAttack)this.attack();
     for(const t of this.texts){t.life-=dt;t.y-=dt*13;}this.texts=this.texts.filter(t=>t.life>0);
     for(const e of this.effects)e.life-=dt;this.effects=this.effects.filter(e=>e.life>0);
@@ -84,19 +118,62 @@ export class GameModel{
     if(!this.safe&&(d<e.aggro||e.engaged)&&homeDistance<335){e.engaged=true;const dx=this.p.x-e.x,dy=this.p.y-e.y;e.angle=Math.atan2(dy,dx);if(d>e.range){this.moveEntity(e,dx/d*e.speed*dt,dy/d*e.speed*dt);e.walk+=dt*10;}else if(e.cd<=0){e.cd=e.type==='boss'?2.5:1.7;e.windup=e.type==='boss'?1.1:.42;e.attackX=this.p.x;e.attackY=this.p.y;}}
     else{e.engaged=false;const dx=e.homeX-e.x,dy=e.homeY-e.y,dhome=Math.hypot(dx,dy);if(dhome>8){this.moveEntity(e,dx/dhome*e.speed*.6*dt,dy/dhome*e.speed*.6*dt);e.walk+=dt*6;}if(e.type==='boss')e.hp=Math.min(e.maxHp,e.hp+dt*15);}
   }
-  hurt(damage,e){if(this.dead)return;this.p.hp=Math.max(0,this.p.hp-damage);this.hurtFlash=.3;this.lastCombat=this.p.time;this.addText(this.p.x,this.p.y,'−'+damage,'#ffbea0');this.emit('sound',{name:'hurt'});if(this.p.hp<=0){this.dead=true;this.autoAttack=false;this.destination=null;this.input={x:0,y:0};this.emit('death');}}
+  hurt(damage,e){if(this.dead)return;this.p.hp=Math.max(0,this.p.hp-damage);this.hurtFlash=.3;this.lastCombat=this.p.time;this.addText(this.p.x,this.p.y,'−'+damage,'#ffbea0');this.emit('sound',{name:'hurt'});if(this.p.hp<=0){this.dead=true;this.archerShot=null;this.effects=this.effects.filter(f=>f.type!=='arrow');this.autoAttack=false;this.destination=null;this.input={x:0,y:0};this.emit('death');}}
   damageEnemy(e,amount){if(!e||e.hp<=0)return;const n=Math.round(amount);e.hp=Math.max(0,e.hp-n);e.flash=.16;e.engaged=true;this.lastCombat=this.p.time;this.addText(e.x,e.y,'−'+n,e.type==='boss'?'#ffe8aa':'#f7e5b3');if(e.hp<=0){this.p.enemies[e.id]=true;this.p.gold+=e.gold;this.gainXp(e.xp);this.p.quest.kills++;this.addText(e.x,e.y+28,'+'+e.xp+' EXP','#aed7ae');if(e.type==='boss'){this.p.quest.boss=true;this.p.quest.stage=3;this.p.inventory.relic=1;this.emit('bossDefeated');}else{if(this.p.quest.kills%2===0){this.p.inventory.potion++;this.emit('toast',{text:'+1 poción · Botín recuperado',kind:'reward'});}if(this.tasksDone&&this.p.quest.stage===1)this.emit('toast',{text:'Suministros listos. Vuelve con Lyra.',kind:'reward'});}this.emit('save');}}
-  attack(){if(!this.active||this.dead||this.attackCd>0||this.gather)return false;const e=this.nearestEnemy(this.config.range);if(!e){if(!this.autoAttack)this.emit('toast',{text:'Acércate a un enemigo para atacar.'});return false;}this.attackCd=this.config.cooldown;this.attackAnim=.3;this.angle=Math.atan2(e.y-this.p.y,e.x-this.p.x);const amount=this.config.damage+(this.p.level-1)*4;this.damageEnemy(e,amount);if(this.p.classId==='guardian')this.effects.push({type:'slash',x:this.p.x,y:this.p.y,angle:this.angle,radius:85,life:.26,max:.26,color:'#e7d2a0'});else this.effects.push({type:'projectile',x:this.p.x,y:this.p.y,tx:e.x,ty:e.y,life:.28,max:.28,color:this.p.classId==='arcanist'?'#c4b1ff':'#efe0ae',arcane:this.p.classId==='arcanist'});this.emit('sound',{name:this.p.classId==='arcanist'?'magic':'attack'});return true;}
-  skill(){if(!this.active||this.dead||this.skillCd>0)return false;if(this.p.mana<this.config.skillCost){this.emit('toast',{text:'Necesitas más energía arcana.'});return false;}const target=this.nearestEnemy(this.config.range+60);if(!target){this.emit('toast',{text:'No hay enemigos al alcance.'});return false;}this.skillCd=this.config.skillCooldown;this.p.mana-=this.config.skillCost;this.attackAnim=.5;const center=this.p.classId==='guardian'?this.p:target;const radius=this.p.classId==='guardian'?158:143;this.effects.push({type:this.p.classId==='ranger'?'arrows':'nova',x:center.x,y:center.y,radius,life:.7,max:.7,color:this.p.classId==='arcanist'?'#c3a5f2':this.p.classId==='ranger'?'#b4d39b':'#e9ca7c'});for(const e of this.enemies)if(e.hp>0&&!(e.type==='boss'&&this.p.quest.stage<2)&&dist(e,center)<radius)this.damageEnemy(e,this.config.damage*2+(this.p.level-1)*7);this.emit('sound',{name:'skill'});return true;}
-  dodge(){if(!this.active||this.dead||this.dodgeCd>0)return false;this.dodgeCd=3;this.dodgeTime=.3;this.destination=null;this.gather=null;this.effects.push({type:'dust',x:this.p.x,y:this.p.y,radius:40,life:.4,max:.4,color:'#d8d8ae'});this.emit('sound',{name:'dodge'});return true;}
+  startArcherShot(target,skill=false){
+    if(this.archerShot||this.dodgeTime>0)return false;
+    const dx=target.x-this.p.x,dy=target.y-this.p.y;
+    this.angle=Math.atan2(dy,dx);
+    this.archerDirection=(Math.round(Math.atan2((dx-dy)*.86,(dx+dy)*.48)/(Math.PI/4))+8)%8;
+    this.archerShot={target,skill,age:0,duration:this.config.cooldown,released:false,amount:this.config.damage+(this.p.level-1)*4};
+    this.attackCd=this.config.cooldown;this.attackAnim=this.config.cooldown;
+    this.moving=false;
+    if(skill){this.skillCd=this.config.skillCooldown;this.p.mana-=this.config.skillCost;}
+    return true;
+  }
+  updateArcher(dt){
+    if(this.dead)return;
+    const shot=this.archerShot;
+    if(shot){
+      shot.age+=dt;
+      if(!shot.released&&shot.age>=shot.duration*RELEASE/SHOT_DURATION){
+        shot.released=true;
+        const e=shot.target;
+        if(e.hp>0){
+          if(shot.skill){
+            this.effects.push({type:'arrows',x:e.x,y:e.y,radius:143,life:.7,max:.7,color:'#b4d39b'});
+            for(const enemy of this.enemies)if(enemy.hp>0&&!(enemy.type==='boss'&&this.p.quest.stage<2)&&dist(enemy,e)<143)this.damageEnemy(enemy,this.config.damage*2+(this.p.level-1)*7);
+          }else{
+            const a=facingAngle(this.archerDirection),sx=-8*Math.cos(a)+46*Math.sin(a),gy=8*Math.sin(a)+46*Math.cos(a);
+            const x=this.p.x+(sx/.86+gy)/2,y=this.p.y+(gy-sx/.86)/2;
+            this.effects.push({type:'arrow',x,y,z:57,target:e,amount:shot.amount,life:2,max:2,age:0,angle:this.angle,color:'#ead19d'});
+          }
+          this.emit('sound',{name:shot.skill?'skill':'attack'});
+        }
+      }
+      if(shot.age>=shot.duration)this.archerShot=null;
+    }
+    for(const fx of this.effects){
+      if(fx.type!=='arrow'||fx.life<=0)continue;
+      if(fx.target.hp<=0){fx.life=0;continue;}
+      fx.age+=dt;
+      const dx=fx.target.x-fx.x,dy=fx.target.y-fx.y,d=Math.hypot(dx,dy),travel=620*dt;
+      fx.angle=Math.atan2(dy,dx);fx.z=57+(38-57)*Math.min(1,fx.age/.2);
+      if(d<=travel){fx.x=fx.target.x;fx.y=fx.target.y;fx.life=0;this.damageEnemy(fx.target,fx.amount);}
+      else{fx.x+=dx/d*travel;fx.y+=dy/d*travel;}
+    }
+  }
+  attack(){if(!this.active||this.dead||this.attackCd>0||this.gather)return false;const e=this.nearestEnemy(this.config.range);if(!e){if(!this.autoAttack)this.emit('toast',{text:'Acércate a un enemigo para atacar.'});return false;}if(this.p.classId==='ranger')return this.startArcherShot(e,false);this.attackCd=this.config.cooldown;this.attackAnim=.3;this.angle=Math.atan2(e.y-this.p.y,e.x-this.p.x);const amount=this.config.damage+(this.p.level-1)*4;this.damageEnemy(e,amount);if(this.p.classId==='guardian')this.effects.push({type:'slash',x:this.p.x,y:this.p.y,angle:this.angle,radius:85,life:.26,max:.26,color:'#e7d2a0'});else this.effects.push({type:'projectile',x:this.p.x,y:this.p.y,tx:e.x,ty:e.y,life:.28,max:.28,color:this.p.classId==='arcanist'?'#c4b1ff':'#efe0ae',arcane:this.p.classId==='arcanist'});this.emit('sound',{name:this.p.classId==='arcanist'?'magic':'attack'});return true;}
+  skill(){if(!this.active||this.dead||this.skillCd>0)return false;if(this.p.mana<this.config.skillCost){this.emit('toast',{text:'Necesitas más energía arcana.'});return false;}const target=this.nearestEnemy(this.config.range+60);if(!target){this.emit('toast',{text:'No hay enemigos al alcance.'});return false;}if(this.p.classId==='ranger')return this.startArcherShot(target,true);this.skillCd=this.config.skillCooldown;this.p.mana-=this.config.skillCost;this.attackAnim=.5;const center=this.p.classId==='guardian'?this.p:target;const radius=this.p.classId==='guardian'?158:143;this.effects.push({type:this.p.classId==='ranger'?'arrows':'nova',x:center.x,y:center.y,radius,life:.7,max:.7,color:this.p.classId==='arcanist'?'#c3a5f2':this.p.classId==='ranger'?'#b4d39b':'#e9ca7c'});for(const e of this.enemies)if(e.hp>0&&!(e.type==='boss'&&this.p.quest.stage<2)&&dist(e,center)<radius)this.damageEnemy(e,this.config.damage*2+(this.p.level-1)*7);this.emit('sound',{name:'skill'});return true;}
+  dodge(){if(!this.active||this.dead||this.dodgeCd>0)return false;this.archerShot=null;this.dodgeCd=3;this.dodgeTime=.3;this.destination=null;this.gather=null;this.effects.push({type:'dust',x:this.p.x,y:this.p.y,radius:40,life:.4,max:.4,color:'#d8d8ae'});this.emit('sound',{name:'dodge'});return true;}
   potion(){if(!this.active||this.dead)return false;if(this.p.inventory.potion<=0){this.emit('toast',{text:'No quedan pociones. La hoguera te recupera.',kind:'error'});return false;}if(this.p.hp>=this.maxHp){this.emit('toast',{text:'Tu salud ya está completa.'});return false;}this.p.inventory.potion--;this.p.hp=Math.min(this.maxHp,this.p.hp+80);this.addText(this.p.x,this.p.y,'+80 salud','#b6e4a4');this.emit('sound',{name:'heal'});this.emit('save');return true;}
   getInteractable(){if(this.gather)return {...this.gather.resource,label:'Recolectando…',gathering:true};const candidates=[{...NPC,label:'Hablar con Lyra'},{...FIRE,label:'Descansar en la hoguera'},...this.resources.filter(r=>!r.used).map(r=>({...r,label:r.type==='herb'?'Recoger flor del alba':r.type==='ore'?'Extraer hierro':r.type==='wood'?'Cortar madera':'Abrir cofre'}))];let best=null,d=78;for(const c of candidates){const n=dist(c,this.p);if(n<d){best=c;d=n;}}return best;}
-  interact(){if(!this.active||this.dead||this.gather)return;const c=this.getInteractable();if(!c){this.emit('toast',{text:'Acércate a Lyra, un recurso o una hoguera.'});return;}this.destination=null;if(c.type==='npc'){this.emit('npc');return;}if(c.type==='fire'){this.p.hp=this.maxHp;this.p.mana=100;if(this.p.inventory.potion<2)this.p.inventory.potion=2;this.emit('toast',{text:'Salud y energía recuperadas. Pociones repuestas.',kind:'reward'});this.emit('sound',{name:'heal'});this.emit('save');return;}this.gather={resource:c,time:0,duration:c.type==='ore'?1.9:c.type==='wood'?1.5:.85};this.emit('sound',{name:'gather'});}
+  interact(){if(!this.active||this.dead||this.gather||this.archerShot)return;const c=this.getInteractable();if(!c){this.emit('toast',{text:'Acércate a Lyra, un recurso o una hoguera.'});return;}this.destination=null;if(c.type==='npc'){this.emit('npc');return;}if(c.type==='fire'){this.p.hp=this.maxHp;this.p.mana=100;if(this.p.inventory.potion<2)this.p.inventory.potion=2;this.emit('toast',{text:'Salud y energía recuperadas. Pociones repuestas.',kind:'reward'});this.emit('sound',{name:'heal'});this.emit('save');return;}this.gather={resource:c,time:0,duration:c.type==='ore'?1.9:c.type==='wood'?1.5:.85};this.emit('sound',{name:'gather'});}
   finishGather(){const r=this.gather.resource;this.gather=null;const resource=this.resources.find(s=>s.id===r.id);if(!resource||resource.used)return;resource.used=true;this.p.resources[r.id]=true;if(r.type==='chest'){this.p.gold+=45;this.p.inventory.potion+=2;this.gainXp(20);this.emit('toast',{text:'Cofre descubierto · +45 oro · +2 pociones',kind:'reward'});}else{this.p.inventory[r.type]++;if(r.type==='herb'){this.p.quest.herbs++;this.p.skills.gathering+=15;}if(r.type==='ore'){this.p.quest.ores++;this.p.skills.mining+=20;}if(r.type==='wood')this.p.skills.woodcutting+=20;this.gainXp(r.type==='herb'?12:18);this.emit('toast',{text:r.type==='herb'?'+1 flor del alba · Recolección +15 EXP':r.type==='ore'?'+1 mineral de hierro · Minería +20 EXP':'+1 madera de roble · Tala +20 EXP',kind:'reward'});if(this.tasksDone&&this.p.quest.stage===1)this.emit('toast',{text:'Todo listo. Regresa al refugio con Lyra.',kind:'reward'});}this.emit('sound',{name:'reward'});this.emit('save');}
   acceptQuest(){if(this.p.quest.stage!==0)return false;this.p.quest.stage=1;this.emit('toast',{text:'Misión aceptada: El corazón del valle',kind:'reward'});this.emit('save');return true;}
   deliverSupplies(){if(this.p.quest.stage!==1||!this.tasksDone)return false;this.p.quest.stage=2;this.p.inventory.herb=Math.max(0,this.p.inventory.herb-3);this.p.inventory.ore=Math.max(0,this.p.inventory.ore-2);this.p.inventory.potion+=3;this.p.gold+=35;this.gainXp(65);this.emit('toast',{text:'El sello ha caído. Cruza el puente hacia las ruinas.',kind:'reward'});this.emit('save');return true;}
   finishQuest(){if(this.p.quest.stage!==3||!this.p.quest.boss)return false;this.p.quest.stage=4;this.p.gold+=150;this.gainXp(120);this.emit('complete');this.emit('save');return true;}
-  respawn(){this.dead=false;this.p.x=CAMP.x;this.p.y=CAMP.y;this.p.hp=this.maxHp;this.p.mana=100;this.p.inventory.potion=Math.max(2,this.p.inventory.potion);this.input={x:0,y:0};this.destination=null;this.autoAttack=false;this.gather=null;this.attackCd=0;this.skillCd=0;this.dodgeCd=0;this.dodgeTime=0;for(const e of this.enemies)if(e.hp>0){e.x=e.homeX;e.y=e.homeY;e.engaged=false;e.windup=0;e.hp=e.maxHp;}this.emit('save');this.emit('toast',{text:'Lyra te ha traído de vuelta. Conservas tu progreso.'});}
+  respawn(){this.archerShot=null;this.archerMotion=0;this.archerPhase=0;this.effects=this.effects.filter(f=>f.type!=='arrow');this.dead=false;this.p.x=CAMP.x;this.p.y=CAMP.y;this.p.hp=this.maxHp;this.p.mana=100;this.p.inventory.potion=Math.max(2,this.p.inventory.potion);this.input={x:0,y:0};this.destination=null;this.autoAttack=false;this.gather=null;this.attackCd=0;this.skillCd=0;this.dodgeCd=0;this.dodgeTime=0;for(const e of this.enemies)if(e.hp>0){e.x=e.homeX;e.y=e.homeY;e.engaged=false;e.windup=0;e.hp=e.maxHp;}this.emit('save');this.emit('toast',{text:'Lyra te ha traído de vuelta. Conservas tu progreso.'});}
   craftPotion(){const reserve=this.p.quest.stage<2?3:0;if(this.p.inventory.herb-reserve<2)return false;this.p.inventory.herb-=2;this.p.inventory.potion++;this.emit('save');return true;}
   waypoint(){const q=this.p.quest;if(q.stage===0||q.stage===3||(q.stage===1&&this.tasksDone))return NPC;if(q.stage===2)return this.enemies.find(e=>e.type==='boss');if(q.stage===1){if(q.herbs<3)return this.resources.filter(r=>r.type==='herb'&&!r.used).sort((a,b)=>dist(a,this.p)-dist(b,this.p))[0];if(q.ores<2)return this.resources.filter(r=>r.type==='ore'&&!r.used).sort((a,b)=>dist(a,this.p)-dist(b,this.p))[0];if(q.kills<3)return this.nearestEnemy();}return null;}
 }

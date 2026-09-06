@@ -2,6 +2,16 @@
 
 RPG de fantasía individual para móviles y escritorio. Incluye menú principal, lobby con tres clases y un mapa isométrico jugable. Mundo, personajes, historia y arte originales.
 
+## Arquero 0.2
+
+- Explorador renovado en el lobby y el mapa, con ocho orientaciones reales.
+- Pasos ligados a la distancia recorrida y detenidos al encontrar un obstáculo.
+- Preparación, tensión, suelta y recuperación del arco; daño cuando llega la flecha.
+- Cadencia y daño base conservados. El disparo detiene brevemente el movimiento; esquivar cancela una flecha que aún no ha salido.
+- Lluvia de flechas sincronizada con la suelta del arco. Las partidas guardadas siguen siendo compatibles.
+
+Pruebas de integración: `node tests/archer.test.mjs`. Comprueban ocho direcciones, pies apoyados, daño diferido, pausa, colisiones, cancelación al esquivar, reaparición y habilidad especial.
+
 ## Publicar en GitHub Pages
 
 El juego completo está en `docs/` y no necesita instalación ni compilación.
