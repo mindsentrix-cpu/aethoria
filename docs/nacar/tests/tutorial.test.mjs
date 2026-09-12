@@ -1,9 +1,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import{ZONES,TILE,LESSONS,freshState,parseSave,serialize,objective,objectivePosition,storyObjective,tutorialGuide,tutorialProgress,learnMenu,missingMaterials,craft,canStand,lineClear,skillLevel,emergencySupplies}from'../model.mjs?v=pages-5';
-import{interact,choiceAction}from'../actions.mjs?v=pages-5';
-import{Engine}from'../engine.mjs?v=pages-5';
-import{workshopView}from'../workshop.mjs?v=pages-5';
+import{ZONES,TILE,LESSONS,freshState,parseSave,serialize,objective,objectivePosition,storyObjective,tutorialGuide,tutorialProgress,learnMenu,missingMaterials,craft,canStand,lineClear,skillLevel,emergencySupplies}from'../model.mjs?v=zoom-6';
+import{interact,choiceAction}from'../actions.mjs?v=zoom-6';
+import{Engine}from'../engine.mjs?v=zoom-6';
+import{workshopView}from'../workshop.mjs?v=zoom-6';
 
 const act=(s,id)=>interact(s,ZONES[s.zone].entities.find(e=>e.id===id));
 function blockedSave(){const s=freshState();delete s.tutorial;for(const id of ['sera','iven','parcel','plaza_exit','pump','coil'])act(s,id);delete s.tutorial;return parseSave(serialize(s))}

@@ -1,5 +1,6 @@
-import{TILE,ZONES,visibleEntity,objectivePosition,nearest,maxHP,toxic,skillLevel}from'./model.mjs?v=pages-5';
-import{targetIndicator}from'./layout.mjs?v=pages-5';
+import{TILE,ZONES,visibleEntity,objectivePosition,nearest,maxHP,toxic,skillLevel}from'./model.mjs?v=zoom-6';
+import{targetIndicator}from'./layout.mjs?v=zoom-6';
+import{clampZoom}from'./camera.mjs?v=zoom-6';
 const C={gold:'#e8b96c',teal:'#7edcca',amber:'#eebc72',red:'#ed8b6b'};
 const hash=(x,y)=>{let n=Math.sin(x*127.1+y*311.7)*43758.5453;return n-Math.floor(n)};
 function ellipse(c,x,y,rx,ry,col){c.fillStyle=col;c.beginPath();c.ellipse(x,y,rx,ry,0,0,Math.PI*2);c.fill()}
@@ -8,9 +9,11 @@ function rect(c,x,y,w,h,col){c.fillStyle=col;c.fillRect(x,y,w,h)}
 function box(c,x,y,w,h,height,col='#284247'){rect(c,x+7,y+7,w,h,'#0005');rect(c,x,y,w,h,col);rect(c,x,y-height,w,height,'#456061');rect(c,x,y-height,w,3,'#8caaa35a');rect(c,x,y-height,3,h+height,'#bbd2bd22');rect(c,x+w-5,y-height,5,h+height,'#0003')}
 function label(c,text,x,y,size=14,color='#bbc9b8'){c.font=`${size}px monospace`;c.fillStyle=color;c.textAlign='center';c.fillText(text,x,y)}
 export class Renderer{
-constructor(canvas,factory=()=>document.createElement('canvas')){this.canvas=canvas;this.c=canvas.getContext('2d');this.factory=factory;this.cache={};this.camera={x:0,y:0};this.width=1280;this.height=720;this.zoom=1;this.dpr=1;this.ready=false;this.frame={left:16,top:16,right:1264,bottom:704}}
+constructor(canvas,factory=()=>document.createElement('canvas')){this.canvas=canvas;this.c=canvas.getContext('2d');this.factory=factory;this.cache={};this.camera={x:0,y:0};this.width=1280;this.height=720;this.baseZoom=1;this.cameraZoom=1;this.dpr=1;this.ready=false;this.frame={left:16,top:16,right:1264,bottom:704}}
 resize(w,h,dpr=1){this.width=w;this.height=h;this.dpr=Math.min(dpr,2);this.canvas.width=Math.round(w*this.dpr);this.canvas.height=Math.round(h*this.dpr);this.ready=false;this.frame={left:16,top:16,right:w-16,bottom:h-16}}
-setFrame(frame){this.frame=frame;this.zoom=frame.zoom||this.zoom}
+get zoom(){return this.baseZoom*this.cameraZoom}
+setCameraZoom(value){this.cameraZoom=clampZoom(value)}
+setFrame(frame){this.frame=frame;if(Number.isFinite(frame.zoom)&&frame.zoom>0)this.baseZoom=frame.zoom}
 background(key){if(this.cache[key])return this.cache[key];const z=ZONES[key],a=this.factory();a.width=z.w*TILE;a.height=z.h*TILE;const c=a.getContext('2d');rect(c,0,0,a.width,a.height,'#07181f');
 for(let y=0;y<z.h;y++)for(let x=0;x<z.w;x++){const px=x*TILE,py=y*TILE,n=hash(x,y);if(z.tiles[y][x]){const tone=key==='annex'?`rgb(${27+n*8},${49+n*9},${45+n*8})`:`rgb(${28+n*8},${43+n*8},${47+n*8})`;rect(c,px,py,64,64,tone);rect(c,px+1,py+1,62,1,'#ffffff09');rect(c,px,py+63,64,1,'#0004');rect(c,px+63,py,1,64,'#0003');if(n>.75){line(c,px+15,py+8,px+21,py+25,'#07171c66',1);line(c,px+21,py+25,px+32,py+31,'#07171c66',1)}if(n<.2)for(let i=0;i<5;i++)ellipse(c,px+hash(x+i,y)*60,py+hash(x,y+i)*60,1.5,1,'#bbbfa633');
 if(!z.tiles[y-1]?.[x]){rect(c,px,py,64,15,'#02080caa');rect(c,px+2,py+3,60,2,'#aebdaf16')}if(!z.tiles[y+1]?.[x]){rect(c,px,py+51,64,13,'#48636a');rect(c,px,py+49,64,3,'#8aaba277');rect(c,px,py+61,64,3,'#061b21');}if(!z.tiles[y]?.[x-1]){rect(c,px,py,10,64,'#0a1a22');rect(c,px+10,py,2,64,'#7b95954d')}if(!z.tiles[y]?.[x+1])rect(c,px+55,py,9,64,'#07191e99');

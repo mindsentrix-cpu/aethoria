@@ -1,4 +1,4 @@
-import{parseSave,serialize}from'./model.mjs?v=pages-5';
+import{parseSave,serialize}from'./model.mjs?v=zoom-6';
 
 export const SAVE='nacar-save-v1',BACKUP='nacar-save-backup-v1';
 export const MAX_JOURNEY_SIZE=256*1024;

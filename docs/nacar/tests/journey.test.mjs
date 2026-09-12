@@ -1,7 +1,7 @@
 import test from'node:test';
 import assert from'node:assert/strict';
-import{freshState,serialize}from'../model.mjs?v=pages-5';
-import{SAVE,BACKUP,readJourney,exportJourney,restoreJourney}from'../journey.mjs?v=pages-5';
+import{freshState,serialize}from'../model.mjs?v=zoom-6';
+import{SAVE,BACKUP,readJourney,exportJourney,restoreJourney}from'../journey.mjs?v=zoom-6';
 
 const memory=entries=>{const values=new Map(entries);return{getItem:key=>values.get(key)??null,setItem:(key,value)=>values.set(key,value)}};
 

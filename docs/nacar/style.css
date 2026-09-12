@@ -1,3 +1,17 @@
+/* Camera gestures belong to the game; menus retain native scrolling and text zoom. */
+#game{touch-action:manipulation}
+#game[data-playing=true]{touch-action:none;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
+#game[data-page-zoom=true],#game[data-page-zoom=true] #world,#game[data-page-zoom=true] #touch,#game[data-page-zoom=true] #touch *{touch-action:manipulation}
+.camera-badge{position:absolute;right:calc(var(--safe-right) + var(--gutter));top:var(--hud-bottom,84px);padding:5px 10px;border:1px solid #e8b96c60;border-radius:6px;background:#07191de8;color:var(--gold);font:.8rem/1.4 monospace;pointer-events:none}
+#game[data-layout=portrait] .camera-badge{top:var(--toast-top,150px)}
+.panel.camera{max-width:440px}
+.overlay:has(.panel.camera){align-items:flex-end;background:#0003}
+.camera .field-label{display:flex;align-items:center;justify-content:space-between;gap:12px}
+#camera-readout{color:var(--gold);white-space:nowrap;font-variant-numeric:tabular-nums}
+.camera-adjust{display:flex;align-items:center;gap:12px}
+.camera-adjust button{flex:0 0 48px;padding:0;font-size:1.5rem;touch-action:manipulation}
+.camera-adjust input{min-width:0;flex:1;min-height:44px;margin:0;accent-color:var(--gold);touch-action:pan-y}
+.camera-reset{margin-top:12px;width:100%}
 /* Nácar — edge-to-edge game viewport; safe areas apply only to the controls. */
 :root{color-scheme:dark;--ink:#07191d;--panel:#0c2227;--paper:#e9e2d3;--muted:#a4bbb8;--gold:#e8b96c;--teal:#68d4c1;--line:#ffffff20;font:16px/1.5 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:var(--paper);background:var(--ink);-webkit-text-size-adjust:100%;text-size-adjust:100%}
 *{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;overscroll-behavior:none}button{font:inherit;color:inherit;cursor:pointer;touch-action:manipulation}button:focus-visible,summary:focus-visible{outline:2px solid var(--gold);outline-offset:3px}button:disabled{cursor:default;opacity:.55}[hidden]{display:none!important}

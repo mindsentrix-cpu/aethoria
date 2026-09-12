@@ -1,4 +1,4 @@
-import{RECIPES,MATERIAL_NAMES,missingMaterials,supplyTarget,storyObjective}from'./model.mjs?v=pages-5';
+import{RECIPES,MATERIAL_NAMES,missingMaterials,supplyTarget,storyObjective}from'./model.mjs?v=zoom-6';
 
 const mask=`<svg class="respirator-icon" viewBox="0 0 100 80" fill="none" aria-hidden="true"><path d="M24 24 8 14v32l18 9M76 24l16-10v32L74 55" stroke="currentColor" stroke-width="5"/><path d="M29 17q21-13 42 0l10 25-14 24H33L19 42Z" fill="#233f42" stroke="currentColor" stroke-width="3"/><rect x="33" y="31" width="34" height="25" rx="6" stroke="currentColor" stroke-width="3"/><path d="M40 38h20M40 45h20M40 52h20" stroke="currentColor" stroke-width="2"/></svg>`;
 function requirement(label,have,need){const ready=have>=need;return`<li class="requirement ${ready?'ready':'missing'}"><span class="requirement-status">${ready?'✓':'!'}</span><span>${label}</span><strong>${have} / ${need}</strong><small>${ready?'Listo':`Faltan ${need-have}`}</small></li>`}

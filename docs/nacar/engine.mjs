@@ -1,5 +1,5 @@
-import{TILE,ZONES,freshState,move,canStand,lineClear,nearest,skillLevel,maxHP,maxAir,toxic,award,heal,craft,playerLevel,ensureTutorial,learn}from'./model.mjs?v=pages-5';
-import{interact,choiceAction}from'./actions.mjs?v=pages-5';
+import{TILE,ZONES,freshState,move,canStand,lineClear,nearest,skillLevel,maxHP,maxAir,toxic,award,heal,craft,playerLevel,ensureTutorial,learn}from'./model.mjs?v=zoom-6';
+import{interact,choiceAction}from'./actions.mjs?v=zoom-6';
 export class Engine{
 constructor(state=freshState(),notify=()=>{}){this.state=state;ensureTutorial(state);this.notify=notify;this.clock=0;this.menu=true;this.angle=Math.PI/2;this.moving=false;this.attackTimer=0;this.attackCooldown=0;this.pulseCooldown=0;this.dashCooldown=0;this.dashTime=0;this.invuln=0;this.shake=0;this.scanTimer=0;this.pulses=[];this.rebuild()}
 rebuild(){this.enemies=ZONES[this.state.zone].enemies.filter(e=>!this.state.kills.includes(e.id)).map(e=>({...e,maxHp:e.hp,origin:{x:e.x,y:e.y},cooldown:1,wind:0,target:null}));this.invuln=1.2;this.dashTime=0;this.pulses=[]}

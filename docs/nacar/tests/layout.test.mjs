@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import{screenLayout,playFrame,targetIndicator,compactObjective}from'../layout.mjs?v=pages-5';
+import{screenLayout,playFrame,targetIndicator,compactObjective}from'../layout.mjs?v=zoom-6';
 
 test('the game chooses its layout from the available surface, including a short embedded viewer',()=>{
  assert.equal(screenLayout(1280,720).mode,'desktop');

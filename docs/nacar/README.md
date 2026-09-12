@@ -20,7 +20,11 @@ La carpeta completa puede trasladarse a la raíz de otro repositorio o a otra su
 
 ## Pantalla y móvil
 
-El mundo ocupa el ancho y el alto dinámicos completos del navegador, sin contenedor con márgenes, proporción fija ni bandas añadidas. La cámara se centra en todo el lienzo y conserva la escala del personaje; la interfaz se adapta alrededor de ella. Las zonas seguras del teléfono solo desplazan los botones, no el mundo.
+El mundo ocupa el ancho y el alto dinámicos completos del navegador, sin contenedor con márgenes, proporción fija ni bandas añadidas. La cámara se centra en todo el lienzo; la interfaz se adapta alrededor de ella. Las zonas seguras del teléfono solo desplazan los botones, no el mundo.
+
+Separa dos dedos sobre el escenario para acercar la cámara; júntalos para alejarla, entre 70 % y 180 %. El zoom sigue centrado en Noa y no altera el tamaño de los botones, la velocidad ni las reglas del mundo. **Menú → Cámara** ofrece botones + / −, un deslizador y **Restablecer · 100 %**. En escritorio también está en Pausa; las teclas + / − y 0 funcionan durante la partida.
+
+La distancia elegida se guarda con la partida y se conserva al rotar el teléfono, cambiar de sector o actualizar la guía. Solo participan los dedos que empiezan sobre el escenario: usar el joystick y atacar simultáneamente no activa zoom. Durante la partida se cancelan los gestos nativos sobre el lienzo y los controles, incluido el doble toque; los menús conservan su desplazamiento y la ampliación de texto del navegador. Si el navegador ya ha ampliado una pestaña antigua o el texto de un menú, se permite juntar los dedos para recuperar la pantalla; al volver a la escala normal, la pinza controla de nuevo la cámara. Si aún tienes cargada la versión anterior, cierra esa pestaña y abre el enlace actualizado.
 
 Abre la dirección del juego directamente en Safari o Chrome. Los botones Share y Edit site que aparecen en el visor de ChatGPT son externos al juego: su código no puede retirarlos. En iPhone, Safari → Compartir → Agregar a Inicio permite abrir Nácar desde su propio icono como app web. Cuando el navegador admite Fullscreen API, el menú ofrece la acción correspondiente. No se exige una orientación fija.
 
@@ -36,8 +40,8 @@ Si el navegador impide descargar, **Usar copiar y pegar** permite guardar el tex
 
 ## Desarrollo y comprobaciones
 
-Canvas 2D y módulos JavaScript sin dependencias de ejecución. `model.mjs` contiene las reglas y el guardado; `engine.mjs`, la simulación; `actions.mjs`, la campaña; `game.mjs`, la interfaz; `render.mjs`, el mundo; `workshop.mjs`, la fabricación; `layout.mjs`, la adaptación de controles; `journey.mjs`, la importación y exportación del progreso.
+Canvas 2D y módulos JavaScript sin dependencias de ejecución. `model.mjs` contiene las reglas y el guardado; `engine.mjs`, la simulación; `actions.mjs`, la campaña; `game.mjs`, la interfaz; `render.mjs`, el mundo; `workshop.mjs`, la fabricación; `layout.mjs`, la adaptación de controles; `camera.mjs`, el zoom y la protección de gestos; `journey.mjs`, la importación y exportación del progreso.
 
-Ejecuta `node --test tests/*.test.mjs` para verificar progresión, ambos finales, navegación, fabricación, tutorial, escala móvil estable y traslado de partidas. Estas pruebas no sustituyen una comprobación visual en un teléfono real.
+Ejecuta `node --test tests/*.test.mjs` para verificar progresión, ambos finales, navegación, fabricación, tutorial, escala móvil estable, traslado de partidas, pinza en ambas direcciones, límites y protección de los botones. Estas pruebas no sustituyen una comprobación visual en un teléfono real.
 
 La primera carga requiere conexión. Es una aventura individual, sin servidor multijugador. Historia, código y arte originales de Nácar; no usa personajes ni recursos de Silo.

@@ -1,8 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import{ZONES,TILE,freshState,move,canStand,lineClear,changeZone,skillLevel,parseSave,serialize,maxHP,RECIPES,craft}from'../model.mjs?v=pages-5';
-import{interact,choiceAction}from'../actions.mjs?v=pages-5';
-import{Engine}from'../engine.mjs?v=pages-5';
+import{ZONES,TILE,freshState,move,canStand,lineClear,changeZone,skillLevel,parseSave,serialize,maxHP,RECIPES,craft}from'../model.mjs?v=zoom-6';
+import{interact,choiceAction}from'../actions.mjs?v=zoom-6';
+import{Engine}from'../engine.mjs?v=zoom-6';
 const entity=(z,id)=>ZONES[z].entities.find(e=>e.id===id);
 function act(s,id){const e=entity(s.zone,id);assert.ok(e,`entity ${id}`);return interact(s,e)}
 function campaign(branch,peaceful=true){const s=freshState();act(s,'sera');act(s,'iven');act(s,'parcel');act(s,'plaza_cache');act(s,'plaza_exit');act(s,'g_cache1');act(s,'pump');act(s,'coil');act(s,'g_cache2');assert.equal(craft(s,'filter'),true);act(s,'terminal1');act(s,'terminal2');if(peaceful)act(s,'shutdown');else{const e=new Engine(s);e.menu=false;e.damageEnemy(e.enemies.find(x=>x.id==='custodian'),1000)}act(s,'annex_exit');act(s,'record');act(s,'wall');act(s,'lio');choiceAction(s,'choose_'+branch);act(s,branch==='discreet'?'valve':'radio');act(s,'lio');return s}
